@@ -166,6 +166,13 @@ Options:
                   its parent. Accepts any git revision (HEAD, branch name,
                   commit hash) or WORKING for the current working tree.
 
+History commit details~
+
+Press `L` on a commit or one of its files to toggle a floating view of the
+commit's full SHA, author, authored date, refs, subject, and complete message.
+Set `keymaps.history.show_commit_details` to another key (or `false`) to
+customize or disable this action.
+
 Git merge tool:
 >sh
   git config --global merge.tool codediff

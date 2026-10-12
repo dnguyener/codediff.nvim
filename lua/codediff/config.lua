@@ -150,6 +150,7 @@ M.defaults = {
     },
     history = {
       select = "<CR>", -- Select commit/file or toggle expand
+      show_commit_details = "L", -- Toggle details for selected commit/file
       toggle_view_mode = "i", -- Toggle between 'list' and 'tree' views
       refresh = "R", -- Refresh history (re-fetch commits)
       -- Fold keymaps (Vim-style, apply to directory nodes only)

@@ -191,6 +191,32 @@ for _, backend in ipairs({ "native", "polling" }) do
         h.expect_text(screen, "original", "history-one")
         assert.same({ "start", "history-two", "context", "end", "tail" }, h.panes(screen).modified.lines)
       end)
+
+      it("[Y15] toggles full details for the selected commit without replacing the comparison", function()
+        repo.command({ "commit", "--allow-empty", "-m", "details subject", "-m", "first body line\nsecond body line" })
+        open()
+        h.focus(screen, "panel")
+        local before = h.panes(screen)
+        h.action(screen, "history", "show_commit_details", "panel")
+        screen:await(function()
+          return screen:exec([[
+            local session = refresh_session()
+            local win = session and session._commit_details_win
+            if not win or not vim.api.nvim_win_is_valid(win) then return false end
+            local lines = vim.api.nvim_buf_get_lines(vim.api.nvim_win_get_buf(win), 0, -1, false)
+            local text = table.concat(lines, '\n')
+            return text:find('Commit: ', 1, true)
+              and text:find('Subject: details subject', 1, true)
+              and text:find('first body line\nsecond body line', 1, true)
+          ]])
+        end, "commit details did not open with complete metadata and message")
+        assert.same(before, h.panes(screen), "details float must not replace the active comparison")
+        h.action(screen, "history", "show_commit_details", "panel")
+        assert.is_nil(screen:exec([[
+          local win = refresh_session()._commit_details_win
+          return win and vim.api.nvim_win_is_valid(win) and win or nil
+        ]]), "second toggle should close commit details")
+      end)
     end)
   end
 end

@@ -121,6 +121,7 @@ local function build_sections(keymaps, is_bound, shape)
       section("HISTORY", {
         { hkm.select, "Select commit/file or toggle" },
         { MOUSE_SELECT, "Select commit/file (double click)" },
+        { hkm.show_commit_details, "Toggle selected commit details" },
         { hkm.toggle_view_mode, "Toggle list/tree view" },
         { hkm.refresh, "Refresh history" },
         { hkm.fold_open, "Open fold" },

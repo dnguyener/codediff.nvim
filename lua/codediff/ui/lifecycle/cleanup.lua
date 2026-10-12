@@ -35,6 +35,7 @@ local function cleanup_diff(tabpage)
   })
 
   require("codediff.ui.refresh").dispose(tabpage)
+  require("codediff.ui.history.commit_details").close(diff)
 
   -- Restore gutter options before deleting buffers can close or reuse windows.
   require("codediff.ui.conflict").teardown_gutter(tabpage)

@@ -48,5 +48,6 @@ M.restore_file = worktree.restore_file
 M.delete_untracked = worktree.delete_untracked
 
 M.get_commit_list = history.get_commit_list
+M.get_commit_details = history.get_commit_details
 
 return M

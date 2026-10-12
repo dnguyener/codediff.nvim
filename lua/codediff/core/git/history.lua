@@ -147,4 +147,37 @@ function M.get_commit_list(range, git_root, opts, callback)
   end)
 end
 
+-- Get the complete details for one commit.
+-- callback: function(err, commit) where commit contains the full message body.
+function M.get_commit_details(commit, git_root, callback)
+  local args = {
+    "show",
+    "--no-patch",
+    "--format=%H%x00%an <%ae>%x00%aI%x00%D%x00%s%x00%B",
+    commit,
+  }
+
+  run_git_async(args, { cwd = git_root }, function(err, output)
+    if err then
+      callback(err, nil)
+      return
+    end
+
+    local parts = vim.split(output, "\0", { plain = true })
+    if #parts < 6 then
+      callback("Unable to parse commit details", nil)
+      return
+    end
+
+    callback(nil, {
+      hash = parts[1],
+      author = parts[2],
+      authored_date = parts[3],
+      ref_names = parts[4] ~= "" and parts[4] or nil,
+      subject = parts[5],
+      message = table.concat(vim.list_slice(parts, 6), "\0"),
+    })
+  end)
+end
+
 return M

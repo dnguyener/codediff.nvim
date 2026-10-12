@@ -1,7 +1,9 @@
 -- Keymaps for history panel
 local config = require("codediff.config")
+local git = require("codediff.core.git")
 local resolve = require("codediff.keymap.resolve")
 local tree_utils = require("codediff.ui.lib.tree_utils")
+local commit_details = require("codediff.ui.history.commit_details")
 
 local M = {}
 
@@ -60,6 +62,42 @@ function M.setup(history, opts)
         history.on_file_select(node.data)
       end
     end, "Select/toggle entry")
+  end
+
+  if history_keymaps.show_commit_details then
+    panel_map(history_keymaps.show_commit_details, function()
+      local session = lifecycle.get_session(opts.tabpage)
+      if not session then
+        return
+      end
+      if commit_details.is_open(session) then
+        commit_details.close(session)
+        return
+      end
+
+      local node = tree:get_node()
+      local data = node and node.data
+      local hash = data and (data.hash or data.commit_hash)
+      if not hash then
+        vim.notify("Select a commit or file to show commit details", vim.log.levels.WARN)
+        return
+      end
+
+      session._commit_details_request = (session._commit_details_request or 0) + 1
+      local request = session._commit_details_request
+      git.get_commit_details(hash, opts.git_root, function(err, details)
+        vim.schedule(function()
+          if lifecycle.get_session(opts.tabpage) ~= session or session._commit_details_request ~= request then
+            return
+          end
+          if err then
+            vim.notify("Failed to get commit details: " .. err, vim.log.levels.ERROR)
+            return
+          end
+          commit_details.open(session, details, history_keymaps.show_commit_details)
+        end)
+      end)
+    end, "Toggle selected commit details")
   end
 
   -- Double-click support
